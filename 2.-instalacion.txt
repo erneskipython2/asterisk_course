@@ -1,0 +1,65 @@
+
+#no correr como root, usar sudo
+sudo apt-get update
+sudo apt-get upgrade
+
+sudo apt-get install build-essential \
+subversion libncurses5-dev libssl-dev \
+libxml2-dev libsqlite3-dev uuid-dev
+
+#instalar dahdi si requieres placas de telefonia analogic o digital
+sudo apt-get install linux-headers-`uname -r`
+wget https://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/dahdi-linux-complete-2.10.2+2.10.2.tar.gz
+make all
+make install
+make config
+
+#instalar libpri si se necesitan placas digitales (PRI O BRI)
+wget https://downloads.asterisk.org/pub/telephony/libpri/libpri-1.6.0.tar.gz
+make 
+make install
+
+#openr2 si necesitas placas analogicas MFC/R2
+wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/openr2/openr2-1.3.3.tar.gz
+
+#srtp
+wget https://github.com/cisco/libsrtp/archive/master.zip
+ cd srtp
+autoconf
+./configure
+make
+make install
+cp /usr/local/lib/libsrtp.a /lib
+
+#jannson
+wget http://www.digip.org/jansson/releases/jansson-2.5.tar.gz
+./configure –prefix=/
+make
+make install
+
+#ffmpeg
+./configure
+make 
+make install
+
+#opus
+sudo apt-get install xmlstarlet opus-tools libopus0
+
+
+#asterisk
+wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-15-current.tar.gz
+
+ ./configure –with-crypto –with-ssl –with-srtp=/usr/local/lib
+make manuselect
+make && make install
+make samples
+make config
+
+#crear certificados
+mkdir /etc/asterisk/keys
+cd asterisk-15/contrib/scripts
+./ast_tls_cert -C erneski.company.local -O "erneskiLtd" -d /etc/asterisk/keys
+
+#dispositivos
+./ast_tls_cert -m client -c /etc/asterisk/keys/ca.crt -k /etc/asterisk/keys/ca.key -C phone1.erneski.company.local -O "erneskiLtd" -d /etc/asterisk/keys -o erneski
+
